@@ -4,7 +4,7 @@
         "mysql"  : "mysql",
         "pgsql"  : "psql",
         "oracle" : "sqlplus",
-        "vertica": "vsql",
+        "vertica": "vsql"
     },
     "connections": {
     }
