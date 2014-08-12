@@ -14,21 +14,25 @@ class Connection:
 
     def _getCommand(self, options, queries, header = ''):
         command  = self._buildCommand(options)
-        self.tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = False, suffix='.sql')
-        for query in self.settings['before']:
-            self.tmp.write(query + "\n")
-        for query in queries:
-            self.tmp.write(query)
-        self.tmp.close()
-
-        cmd = '%s < "%s"' % (command, self.tmp.name)
+        #Add MSSQL Support
+        if self.options.type == "mssql":
+            cmd = command + "\"" + ''.join(queries) + "\""
+        else:
+            self.tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = False, suffix='.sql')
+            for query in self.settings['before']:
+                self.tmp.write(query + "\n")
+            for query in queries:
+                self.tmp.write(query)
+            self.tmp.close()
+            cmd = '%s < "%s"' % (command, self.tmp.name)
 
         return Command(cmd)
 
     def execute(self, queries):
         command = self._getCommand(self.settings['options'], queries)
         command.show()
-        os.unlink(self.tmp.name)
+        if hasattr(self, 'tmp'):
+            os.unlink(self.tmp.name)
 
     def desc(self):
         query = self.settings['queries']['desc']['query']
@@ -41,7 +45,8 @@ class Connection:
             except IndexError:
                 pass
 
-        os.unlink(self.tmp.name)
+        if hasattr(self, 'tmp'):
+            os.unlink(self.tmp.name)
 
         return tables
 
@@ -50,14 +55,16 @@ class Connection:
         command = self._getCommand(self.settings['queries']['desc table']['options'], query)
         command.show()
 
-        os.unlink(self.tmp.name)
+        if hasattr(self, 'tmp'):
+            os.unlink(self.tmp.name)
 
     def showTableRecords(self, tableName):
         query = self.settings['queries']['show records']['query'] % tableName
         command = self._getCommand(self.settings['queries']['show records']['options'], query)
         command.show()
 
-        os.unlink(self.tmp.name)
+        if hasattr(self, 'tmp'):
+            os.unlink(self.tmp.name)
 
 class Command:
     def __init__(self, text):

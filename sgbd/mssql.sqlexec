@@ -1,0 +1,23 @@
+{
+    "sql_exec": {
+        "options": [],
+        "args": "-S {options.host}  -U '{options.username}' -P {options.password} -D {options.database} -m pretty -C",
+        "queries": {
+            "desc" : {
+                "query": "select name from sys.tables order by name",
+                "options": [],
+                "format" : "|%s|"
+            },
+            "desc table": {
+                "query": "select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='%s'",
+                "options": [],
+                "format" : "|%s|"
+            },
+            "show records": {
+                "query": "select top 100 * from %s",
+                "options": [],
+                "format" : "|%s|"
+            }
+        }
+    }
+}
