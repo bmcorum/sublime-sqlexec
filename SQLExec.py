@@ -64,15 +64,25 @@ class Command:
         self.text = text
 
     def _display(self, panelName, text):
+        st2 = False
         if not sublime.load_settings("SQLExec.sublime-settings").get('show_result_on_window'):
-            panel = sublime.active_window().create_output_panel(panelName)
+            try:
+                panel = sublime.active_window().create_output_panel(panelName)
+            except:
+                st2 = True
+                panel = sublime.active_window().get_output_panel(panelName)
             sublime.active_window().run_command("show_panel", {"panel": "output." + panelName})
         else:
             panel = sublime.active_window().new_file()
 
         panel.set_read_only(False)
         panel.set_syntax_file('Packages/SQL/SQL.tmLanguage')
-        panel.run_command('append', {'characters': text})
+        if not st2:
+            panel.run_command('append', {'characters': text})
+        else:
+            edit = panel.begin_edit()
+            panel.insert(edit, panel.size(), text)
+            panel.end_edit(edit)
         panel.set_read_only(True)
 
     def _result(self, text):
